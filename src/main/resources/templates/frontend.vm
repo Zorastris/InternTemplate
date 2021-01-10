@@ -1,34 +1,91 @@
 $webResourceManager.requireResources("com.veniture.internDemo:general-resources")
 #disable_html_escaping()
 
-<!--
+
 Copyright (c) 2019 by venITure
 
 Released under the MIT license: http://jsbin.mit-license.org
--->
+
 <html>
 <head>
-<!-- Latest compiled and minified CSS-->
-<!--
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
-
-    <meta charset="utf-8">
-    <title>Title</title>
-
+    <title>All Projects &mdash; Project View</title>
     <meta name="decorator" content="atl.general">
-    <style id="css">
-
-    </style>
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
-        AJS.$(document).ready(function () {
-            ## AJS.$('#auiTable > tr')
+        AJS.$(document).ready(function() {
+            jQuery('.delete-project').click(function() {
+                console.log('deleting');
+                var self = jQuery(this);
+                jQuery.ajax({
+                    type: "delete",
+                    url: "projectcrud?key=" + self.data("key"),
+                    success: function(data) {
+                        console.log('dom', self, data);
+                        self.parent().parent().remove();
+                    },
+                    error: function() {
+                        console.log('error', arguments);
+                    }
+                });
+                return false;
+            });
         });
     </script>
 </head>
-<body>
-    $key
+<body class="page-type-admin">
+<div class="content-container">
+
+    <div class="content-body">
+        <!--<h1>You've Got #if($projects.size()==0)<span style="color:red">NO</span>#end Projects!</h1> -->
+        <h1>You've Got <span style="color:red">$projects.size()</span> Projects!</h1>
+        #if ($errors.size()>0)
+            <div class="aui-message error shadowed">
+                #foreach($error in $errors)
+                    <p class="title">
+                        <span class="aui-icon icon-error"></span>
+                        <strong>$error</strong>
+                    </p>
+                #end
+            </div>
+            <!-- .aui-message -->
+        #end
+
+        #if ($projects.size() > 0)
+            <div class="projects">
+                <table class="aui">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Key</th>
+                        <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        #foreach( $project in $projects )
+                        <tr>
+                            <td>$project.getName()</td>
+                            <td>$project.getKey()</td>
+                            <td>
+                                #if($project.getDescription())
+                            $project.getDescription()
+                        #end
+                            </td>
+                            <td>
+                                <a href="projectcrud?edit=y&key=$project.getKey()">Edit</a>
+                                <a href="#" class="delete-project" data-key="$project.getKey()">Delete</a>
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+            </div>
+        #end
+        <form method="get" action="projectcrud" class="aui">
+            <input type="hidden" name="new" value="y">
+            <input type="submit" class="button" value="Create new project">
+        </form>
+    </div>
+</div>
 </body>
 </html>
